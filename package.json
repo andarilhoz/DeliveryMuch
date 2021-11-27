@@ -1,0 +1,25 @@
+{
+  "name": "deliverymuch",
+  "version": "0.0.1",
+  "description": "Desafio DeliveryMuch",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andarilhoz/DeliveryMuch.git"
+  },
+  "author": "Magno Gouveia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andarilhoz/DeliveryMuch/issues"
+  },
+  "homepage": "https://github.com/andarilhoz/DeliveryMuch#readme",
+  "devDependencies": {
+    "jest": "^27.3.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

@@ -7,7 +7,7 @@ services:
             context: .
             dockerfile: dockerfile
         volumes: 
-            - ./:usr/src/app
+            - ./:/usr/src/app
         environment: 
             - PORT=3000
         ports: 

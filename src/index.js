@@ -1,6 +1,9 @@
 const { app } = require('./app');
 const port = process.env.PORT || 3000;
+const  { logger }  = require('./utils/logger');
+
+logger.info("Application initialized")
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    logger.warn(`App listening on port ${port}`)
 })

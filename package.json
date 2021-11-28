@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/andarilhoz/DeliveryMuch#readme",
   "devDependencies": {
+    "csv-parser": "^3.0.0",
+    "dotenv": "^10.0.0",
     "jest": "^27.3.1"
   },
   "dependencies": {

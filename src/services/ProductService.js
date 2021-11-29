@@ -16,6 +16,15 @@ module.exports = class ProductService{
         }
     }
 
+    static async getProductByName(name){
+        try{
+            return await Product.findOne({name});
+        }catch(err){
+            logger.error(`Error getting product ${name}, ${err}`);
+            throw err;
+        }
+    }
+
     static async updateProduct(name, amount){
         try {
             await Product.findOneAndUpdate({name}, {$inc: {quantity: amount}}).orFail();

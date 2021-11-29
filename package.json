@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/andarilhoz/DeliveryMuch#readme",
   "devDependencies": {
+    "@jest-mock/express": "^1.4.5",
     "csv-parser": "^3.0.0",
     "dotenv": "^10.0.0",
     "jest": "^27.3.1",

@@ -7,13 +7,14 @@ const port = process.env.PORT || 3000;
 const  { logger }  = require('./utils/logger');
 const db = require('./utils/db');
 
-const rabbitmq = require('./utils/rabbitmq');
+const rabbitmqService = require('./services/RabbitmqService');
 
 logger.info("Application initialized")
 
 async function Initialize(){
     await db.connect();
-    await rabbitmq.initialize();
+    
+    await rabbitmqService.initialize();
 
     app.listen(port, () => {
         logger.warn(`App listening on port ${port}`)

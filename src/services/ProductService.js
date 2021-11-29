@@ -9,11 +9,19 @@ module.exports = class ProductService{
                 quantity: data.quantity,
                 price: data.price
             }
-            const response = await new Product(newProduct).save();
-            return response;
+            return await new Product(newProduct).save();
         }
         catch(error){
             logger.error(`Error saving product ${error}`);
+        }
+    }
+
+    static async updateProduct(name, amount){
+        try {
+            await Product.findOneAndUpdate({name}, {$inc: {quantity: amount}}).orFail();
+        } catch (error) {
+            logger.error(`Error updating product ${name}, amount ${amount}`);
+            throw error;
         }
     }
 }

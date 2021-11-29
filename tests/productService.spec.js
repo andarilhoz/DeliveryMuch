@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const {MongoMemoryServer} = require('mongodb-memory-server');
 
+const {MongoNotConnectedError} = require('mongodb')
+
 const ProductService = require('../src/services/ProductService');
 const Product = require("../src/models/Product");
 const { logger } = require('../src/utils/logger');
@@ -76,6 +78,25 @@ describe('ProductService Update Tests', () => {
         }catch(error){
             expect(spy).toHaveBeenCalled();
             expect(error).toBeInstanceOf(mongoose.Error.DocumentNotFoundError)
+        }
+    })
+
+    it('Should return Abacaxi get by name', async () => {
+        const abacaxiProduct = await ProductService.getProductByName("Abacaxi");
+        expect(abacaxiProduct).not.toBeUndefined();
+        expect(abacaxiProduct).not.toBeNull();
+        expect(abacaxiProduct.price).toBe(10.58);
+    })
+
+    it('Should fail when database is disconnected', async () => {
+        jest.clearAllMocks();
+        const spy = jest.spyOn(logger, 'error');
+        mongoose.disconnect();
+        try{
+            const nullProduct = await ProductService.getProductByName(null);
+        }catch(error){
+            expect(spy).toHaveBeenCalled();
+            expect(error).toBeInstanceOf(MongoNotConnectedError)
         }
     })
 })

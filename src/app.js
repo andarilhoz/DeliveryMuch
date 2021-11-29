@@ -1,12 +1,8 @@
 const express = require('express');
 const app = express();
+const productRoutes = require('./routes/products');
 
-app.use('/', (req,res) => {
-    const { sayHello} = require('./services/helloWorld')
-
-    res.send(sayHello());
-})
-
+app.use('/products', productRoutes);
 
 module.exports = {
     app

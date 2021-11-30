@@ -68,21 +68,7 @@ describe('OrderController CreateOrder Tests', () => {
                 total: 17.92
             })
         )
-    }),
-
-    it('Should return fail when products are null', async () => {
-
-        const req = getMockReq({ body: {
-        }})
-        
-        jest.clearAllMocks();
-        const spy = jest.spyOn(res, 'status');
-
-        await OrderCtrl.apiCreateOrder(req, res, next);
-
-        expect(spy).toHaveBeenCalledWith(500);
     })
-
 
     it('Should return 400 when products quantity arent enough', async () => {
 
@@ -104,8 +90,71 @@ describe('OrderController CreateOrder Tests', () => {
         await OrderCtrl.apiCreateOrder(req, res, next);
         expect(spy).toHaveBeenCalledWith(400);
     })
-})
 
+    it('Should return 400 when a product item is not found', async () => {
+        const req = getMockReq({ body: {
+            "products": [
+                {
+                    name: "Abacaxi",
+                    quantity: 1
+                },
+                {
+                    name: "Magno",
+                    quantity: 1
+                }
+            ]
+        }})
+        jest.clearAllMocks();
+        const spy = jest.spyOn(res, 'sendStatus');
+        await OrderCtrl.apiCreateOrder(req, res, next);
+        expect(spy).toHaveBeenCalledWith(400);
+    })
+
+    it('Should return 400 when a products list is empty', async () => {
+        const req = getMockReq({ body: {
+            "products": [
+
+            ]
+        }})
+        jest.clearAllMocks();
+        const spy = jest.spyOn(res, 'sendStatus');
+        await OrderCtrl.apiCreateOrder(req, res, next);
+        expect(spy).toHaveBeenCalledWith(400);
+    })
+
+    it('Should return 400 when no products list is passed', async () => {
+        const req = getMockReq({ body: {  }})
+        jest.clearAllMocks();
+        const spy = jest.spyOn(res, 'sendStatus');
+        await OrderCtrl.apiCreateOrder(req, res, next);
+        expect(spy).toHaveBeenCalledWith(400);
+    })
+
+    it('Should return error when database is offline', async () => {
+
+        jest.clearAllMocks();
+        mongoose.disconnect();
+        const req = getMockReq({ body: {
+            "products": [
+                {
+                    name: "Abacaxi",
+                    quantity: 1
+                },
+                {
+                    name: "Melancia",
+                    quantity: 1
+                }
+            ]
+        }})
+        
+        const spy = jest.spyOn(res, 'status');
+        await OrderCtrl.apiCreateOrder(req, res, next);
+        expect(spy).toHaveBeenCalledWith(500);
+        
+        await ConnectToMongodb();
+    })
+
+})
 
 describe('OrderController GetAllOrders Test', () => {
     it('Should return all orders', async () => {
@@ -166,16 +215,31 @@ describe('OrderController GetOrderById Test', () => {
         )
     })
 
+    it('Should return 404 when orderID not found', async () => {
+        const req = getMockReq({params: {id: "61a5bf6b82327e08f5aaa767"}});
+        const spy = jest.spyOn(res, 'sendStatus');
+        await OrderCtrl.apiGetOrderById(req, res, next);
+        expect(spy).toHaveBeenCalledWith(404);
+    })
+
+    it('Should return 404 when id is null', async () => {
+        const req = getMockReq();
+        const spy = jest.spyOn(res, 'sendStatus');
+        await OrderCtrl.apiGetOrderById(req, res, next);
+        expect(spy).toHaveBeenCalledWith(404);
+    })
+
     it('Should fail when database is offline', async () => {
         jest.clearAllMocks();
         mongoose.disconnect();
-        const req = getMockReq({ params: {id: "1"}})
+        const req = getMockReq({ params: {id: "61a5bf6b82327e08f5aaa767"}})
         const spy = jest.spyOn(res, 'status');
         await OrderCtrl.apiGetOrderById(req, res, next);
 
         expect(spy).toHaveBeenCalledWith(500);
         await ConnectToMongodb();
     })
+
 })
 
 async function ConnectToMongodb(){

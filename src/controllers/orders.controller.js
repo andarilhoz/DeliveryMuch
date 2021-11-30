@@ -1,7 +1,10 @@
 const OrderService = require('../services/orderService');
 const ProductService = require('../services/productService');
 
+const { ObjectId } = require("mongodb");
+
 const { logger } = require('../utils/logger');
+const { isValidObjectId } = require('mongoose');
 
 module.exports = class Order {
 
@@ -20,8 +23,18 @@ module.exports = class Order {
 
     static async apiGetOrderById(req, res, next){
         try {
-            let id = req.params.id;
+            let id = req.params.id || {};
+            
+            if(!isValidObjectId(id)){
+                res.sendStatus(404);
+                return;
+            }
+
             const order = await OrderService.getOrderById(id);
+            if(order == null){
+                res.sendStatus(404);
+                return;
+            }
             res.json(order);
         } catch (error) {
             logger.error(error)
@@ -33,10 +46,23 @@ module.exports = class Order {
         try{
             let receivedOrder = req.body
             
+            if(!receivedOrder.products || receivedOrder.products.length <= 0){
+                res.sendStatus(400);
+                return;
+            }
+
             let productsNameArray = receivedOrder.products.map(product => product.name);
             let requestedProducts = await ProductService.getProductsByNames(productsNameArray);
 
-            //this could be improve to return the mising stock
+            //this could be improved to return the list of missing products
+            let listOfMissingProducts = Order.missingProducts(requestedProducts, productsNameArray)
+
+            if(listOfMissingProducts.length > 0){
+                res.sendStatus(400);
+                return;
+            }
+
+            //this could be improved to return the mising stock
             let outOfStockItems = Order.evaluateStock(requestedProducts, receivedOrder);
 
             if(outOfStockItems.length > 0){
@@ -58,6 +84,16 @@ module.exports = class Order {
             logger.error(err)
             res.status(500).json({error: err});
         }
+    }
+
+    static missingProducts(requestedProducts, productsNameArray){
+        let missingProducts = [];
+        for (const productName of productsNameArray) {
+            let hasProduct = requestedProducts.some(product => product.name == productName);
+            if(!hasProduct)
+                missingProducts.push(productName)
+        }
+        return missingProducts;
     }
 
     static evaluatePrice(requestedProducts, receivedOrder ){

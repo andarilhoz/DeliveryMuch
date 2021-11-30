@@ -12,8 +12,9 @@ const Order = require('../src/models/Order');
 let mongoServer;
 
 beforeAll(async () => {
-    await ConnectToMongodb();
 
+    mongoServer = await MongoMemoryServer.create();
+    await ConnectToMongodb();
     logger.silent = true;
 })
 
@@ -154,7 +155,7 @@ describe('OrderController GetById Tests', () => {
         const spy = jest.spyOn(logger, 'error');
         
         try {
-            const fetchedOrder = await OrderService.getOrderById(1);
+            const fetchedOrder = await OrderService.getOrderById(mongoose.Types.ObjectId(1));
         } catch (error) {
             expect(spy).toHaveBeenCalled();
             expect(error).toBeInstanceOf(MongoNotConnectedError)
@@ -164,7 +165,6 @@ describe('OrderController GetById Tests', () => {
 })
 
 async function ConnectToMongodb(){
-    mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);
 }

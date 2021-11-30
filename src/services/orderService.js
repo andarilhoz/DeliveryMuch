@@ -5,7 +5,6 @@ module.exports = class ProductService{
 
     static async createOrder(order){
         try {
-//let total = parseFloat(order.products.reduce((total, current) => total + current.price, 0).toFixed(2));
             let newOrder = {
                 products: order.products,
                 total : order.total
@@ -20,9 +19,9 @@ module.exports = class ProductService{
 
     static async getAllOrders(){
         try {
-            return await Order.find();
+            return await Order.find({},{__v: 0});
         } catch (error) {
-            logger.error(`Error creating new order ${error}`)
+            logger.error(`Error creating new order ${error}`);
             throw error;
         }
     }
@@ -31,7 +30,8 @@ module.exports = class ProductService{
         try {
             return await Order.findById({_id: orderId});
         } catch (error) {
-            logger.error(`Order not found ${error}`)
+            logger.error(`Order not found ${error}`);
+            throw error;
         }
     }
 }

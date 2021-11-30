@@ -28,7 +28,7 @@ module.exports = class ProductService{
 
     static async getOrderById(orderId){
         try {
-            return await Order.findById(orderId);
+            return await Order.findById(orderId, {__v:0});
         } catch (error) {
             logger.error(`Order not found ${error}`);
             throw error;

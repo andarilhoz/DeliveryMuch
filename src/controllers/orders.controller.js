@@ -138,8 +138,12 @@ module.exports = class Order {
             let requestedProduct =  receivedOrder.products.find(receivedProduct => product.name == receivedProduct.name);
             
             total += requestedProduct.quantity * product.price;
-            requestedProduct.price = product.price;
-            productsWithPrice.push(requestedProduct);
+
+            productsWithPrice.push({
+                name: requestedProduct.name,
+                price: product.price,
+                quantity: requestedProduct.quantity
+            });
         }
 
         total = parseFloat(total.toFixed(2));

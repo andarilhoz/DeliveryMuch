@@ -5,9 +5,10 @@ const orderSchema = Schema({
 
     products: {
         type: [{
+            _id: false,
             name: String,
             price: Number,
-            quanity: Number
+            quantity: Number
         }],
         required: true
     },

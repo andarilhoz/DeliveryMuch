@@ -37,14 +37,14 @@ module.exports = class Order {
             let requestedProducts = await ProductService.getProductsByNames(productsNameArray);
 
             //this could be improve to return the mising stock
-            let outOfStockItems = this.evaluateStock(requestedProducts, receivedOrder);
+            let outOfStockItems = Order.evaluateStock(requestedProducts, receivedOrder);
 
             if(outOfStockItems.length > 0){
                 res.sendStatus(400);
                 return;
             }
             
-            let { total, productsWithPrice} = this.evaluatePrice(requestedProducts, receivedOrder);
+            let { total, productsWithPrice} = Order.evaluatePrice(requestedProducts, receivedOrder);
             
             const newOrder = {
                 total,
@@ -84,7 +84,7 @@ module.exports = class Order {
         let lowerQuantity = [];
 
         for (const product of requestedProducts) {
-            let requestedProduct =  receivedOrder.products.find(receivedProduct => product.name == receivedProduct.name);
+            let requestedProduct = receivedOrder.products.find(receivedProduct => product.name == receivedProduct.name);
             
             if(product.quantity < requestedProduct.quantity){
                 lowerQuantity.push({current: product, requested: requestedProduct})

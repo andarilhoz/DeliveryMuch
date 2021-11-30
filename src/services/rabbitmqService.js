@@ -1,6 +1,6 @@
 const { logger } = require('../utils/logger');
 const rabbitmq = require('../utils/rabbitmq');
-const ProductService = require('../services/ProductService');
+const ProductService = require('./productService');
 
 module.exports = new class RabbitmqService {
 

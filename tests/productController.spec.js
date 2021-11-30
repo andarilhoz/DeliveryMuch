@@ -7,7 +7,7 @@ const { logger } = require('../src/utils/logger');
 
 const ProductCtrl = require('../src/controllers/products.controller');
 
-const ProductService = require('../src/services/ProductService');
+const ProductService = require('../src/services/productService');
 
 const { res, next, mockClear } = getMockRes();
 

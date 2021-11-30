@@ -3,7 +3,7 @@ const {MongoMemoryServer} = require('mongodb-memory-server');
 
 const {MongoNotConnectedError} = require('mongodb')
 
-const ProductService = require('../src/services/ProductService');
+const ProductService = require('../src/services/productService');
 const Product = require("../src/models/Product");
 const { logger } = require('../src/utils/logger');
 

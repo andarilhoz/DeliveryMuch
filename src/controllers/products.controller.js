@@ -1,4 +1,4 @@
-const ProductService = require('../services/ProductService');
+const ProductService = require('../services/productService');
 const { logger } = require('../utils/logger');
 
 module.exports = class Product {

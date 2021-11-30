@@ -71,14 +71,12 @@ module.exports = class Order {
             let productsNameArray = receivedOrder.products.map(product => product.name);
             let requestedProducts = await ProductService.getProductsByNames(productsNameArray);
 
-            //this could be improved to return the list of missing products
             let listOfMissingProducts = Order.missingProducts(requestedProducts, productsNameArray)
 
             if(listOfMissingProducts.length > 0){
                 invalidations.push({message: "Missing Products", items: listOfMissingProducts});
             }
 
-            //this could be improved to return the mising stock
             let outOfStockItems = Order.evaluateStock(requestedProducts, receivedOrder);
 
             if(outOfStockItems.length > 0){

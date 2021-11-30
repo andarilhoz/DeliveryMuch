@@ -1,0 +1,33 @@
+{
+  "name": "deliverymuch",
+  "version": "1.0.0",
+  "description": "Desafio DeliveryMuch",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andarilhoz/DeliveryMuch.git"
+  },
+  "author": "Magno Gouveia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andarilhoz/DeliveryMuch/issues"
+  },
+  "homepage": "https://github.com/andarilhoz/DeliveryMuch#readme",
+  "devDependencies": {
+    "@jest-mock/express": "^1.4.5",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^10.0.0",
+    "jest": "^27.3.1",
+    "mongodb-memory-server": "^8.0.3"
+  },
+  "dependencies": {
+    "amqplib": "^0.8.0",
+    "express": "^4.17.1",
+    "mongoose": "^6.0.13",
+    "winston": "^3.3.3"
+  }
+}

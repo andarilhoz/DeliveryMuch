@@ -7,7 +7,7 @@ const port = process.env.PORT || 3000;
 const  { logger }  = require('./utils/logger');
 const db = require('./utils/db');
 
-const rabbitmqService = require('./services/RabbitmqService');
+const rabbitmqService = require('./services/rabbitmqService');
 
 logger.info("Application initialized")
 

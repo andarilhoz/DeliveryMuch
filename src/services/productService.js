@@ -33,4 +33,13 @@ module.exports = class ProductService{
             throw error;
         }
     }
+
+    static async getProductsByNames(namesArray){
+        try{
+            return await Product.find({name: {$in: namesArray}}, {_id :0, __v:0});
+        }catch(err){
+            logger.error(`Error getting product ${namesArray}, ${err}`);
+            throw err;
+        }
+    }
 }

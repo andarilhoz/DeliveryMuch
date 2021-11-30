@@ -27,7 +27,7 @@ module.exports = class ProductService{
 
     static async updateProduct(name, amount){
         try {
-            await Product.findOneAndUpdate({name}, {$inc: {quantity: amount}}).orFail();
+            await Product.findOneAndUpdate({name, quantity: {$gt: 0}}, {$inc: {quantity: amount}}).orFail();
         } catch (error) {
             logger.error(`Error updating product ${name}, amount ${amount}`);
             throw error;

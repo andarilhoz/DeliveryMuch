@@ -23,6 +23,9 @@ module.exports = new class RabbitmqService {
 
     async decremented(productName){
         logger.info(`Should decrement ${productName}`)
+        let product = await ProductService.getProductsByNames(productName);
+        if(product.quantity <= 0)
+            return;
         ProductService.updateProduct(productName, -1)
     }
 } 

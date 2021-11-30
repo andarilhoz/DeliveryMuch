@@ -27,9 +27,28 @@ module.exports = class ProductService{
 
     static async updateProduct(name, amount){
         try {
-            await Product.findOneAndUpdate({name, quantity: {$gt: 0}}, {$inc: {quantity: amount}}).orFail();
+            await Product.findOneAndUpdate({name}, {$inc: {quantity: amount}}).orFail();
         } catch (error) {
             logger.error(`Error updating product ${name}, amount ${amount}`);
+            throw error;
+        }
+    }
+
+    static async updateMultipleProducts(productsData){
+        try{
+            const updateList = []
+            for (const product of productsData) {
+                let operation = {
+                    updateOne: {
+                        filter: { name: product.name },
+                        update: {$inc: {quantity: product.quantity}}
+                    }
+                }
+                updateList.push(operation);
+            }
+            await Product.bulkWrite(updateList);
+        }catch(error){
+            logger.error(`Error updating batch products, error: ${error}`);
             throw error;
         }
     }

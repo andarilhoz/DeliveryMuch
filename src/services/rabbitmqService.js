@@ -7,22 +7,27 @@ module.exports = new class RabbitmqService {
     async initialize(){
         await rabbitmq.initialize();
 
-        await rabbitmq.consume(message => {
-            this.processMessage(message);
+        await rabbitmq.consume(async message => {
+            await this.processMessage(message);
         });
     }
 
     async processMessage(message){
-        this[message.fields.routingKey](message.content.toString().replaceAll('"',''))
+        await this[message.fields.routingKey](message.content.toString().replaceAll('"',''))
     }
 
     async incremented(productName){
         logger.info(`Should increment ${productName}`)
-        ProductService.updateProduct(productName, 1)
+        await ProductService.updateProduct(productName, 1)
     }
 
     async decremented(productName){
         logger.info(`Should decrement ${productName}`)
-        ProductService.updateProduct(productName, -1)
+        let product = await ProductService.getProductByName(productName);
+        if(product.quantity <= 0){
+            logger.warn(`Zero value stock ${productName}`)
+            return;
+        }
+        await ProductService.updateProduct(productName, -1)
     }
 } 

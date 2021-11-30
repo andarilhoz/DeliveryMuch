@@ -9,7 +9,7 @@ module.exports = class Product {
             const product = await ProductService.getProductByName(name)
 
             if(product == null){
-                res.sendStatus(404);
+                res.status(404).json({message: "Product not found"});
                 return;
             }
             

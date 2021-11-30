@@ -34,6 +34,25 @@ module.exports = class ProductService{
         }
     }
 
+    static async updateMultipleProducts(productsData){
+        try{
+            const updateList = []
+            for (const product of productsData) {
+                let operation = {
+                    updateOne: {
+                        filter: { name: product.name },
+                        update: {$inc: {quantity: product.quantity}}
+                    }
+                }
+                updateList.push(operation);
+            }
+            await Product.bulkWrite(updateList);
+        }catch(error){
+            logger.error(`Error updating batch products, error: ${error}`);
+            throw error;
+        }
+    }
+
     static async getProductsByNames(namesArray){
         try{
             return await Product.find({name: {$in: namesArray}}, {_id :0, __v:0});

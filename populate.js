@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 const csv = require('csv-parser')
 const fs = require('fs')
 
-const ProductService = require('./src/services/ProductService');
+const ProductService = require('./src/services/productService');
 
 dotenv.config();
 

@@ -134,6 +134,54 @@ describe('ProductService GetByNames FetchList Tests', () => {
     })
 })
 
+
+
+describe('ProductService UpdateMultipleProducts Tests', () => {
+    it('Should update Abacaxi and Melancia value by increasing 1', async () => {
+        let products =  [
+            {
+                name: "Abacaxi",
+                quantity: 3
+            },
+            {
+                name: "Melancia",
+                quantity: 1
+            }
+        ]
+    
+        const oldAbacaxiProduct = await ProductService.getProductByName("Abacaxi");
+        const productsList = await ProductService.updateMultipleProducts(products);
+        const updatedAbacaxiProduct = await ProductService.getProductByName("Abacaxi");
+
+        expect(updatedAbacaxiProduct.quantity).toBe(oldAbacaxiProduct.quantity + 3);
+    })
+
+    it('Should fail when database is disconnected', async () => {
+        jest.clearAllMocks();
+
+        let products =  [
+            {
+                name: "Abacaxi",
+                quantity: 3
+            },
+            {
+                name: "Melancia",
+                quantity: 1
+            }
+        ]
+
+        const spy = jest.spyOn(logger, 'error');
+        mongoose.disconnect();
+        try{
+            const productsList = await ProductService.updateMultipleProducts(products);
+        }catch(error){
+            expect(spy).toHaveBeenCalled();
+            expect(error).toBeInstanceOf(MongoNotConnectedError)
+        }
+        await ConnectToMongodb();
+    })
+})
+
 async function ConnectToMongodb(){
     const mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);

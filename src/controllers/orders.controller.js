@@ -1,7 +1,7 @@
 const OrderService = require('../services/orderService');
 const ProductService = require('../services/productService');
 
-const { ObjectId } = require("mongodb");
+const Product = require('../models/Product');
 
 const { logger } = require('../utils/logger');
 const { isValidObjectId } = require('mongoose');
@@ -26,13 +26,13 @@ module.exports = class Order {
             let id = req.params.id || {};
             
             if(!isValidObjectId(id)){
-                res.sendStatus(404);
+                res.status(404).json({message:"Item Not Found"});
                 return;
             }
 
             const order = await OrderService.getOrderById(id);
             if(order == null){
-                res.sendStatus(404);
+                res.status(404).json({message:"Item Not Found"});
                 return;
             }
             res.json(order);
@@ -43,30 +43,50 @@ module.exports = class Order {
     }
     
     static async apiCreateOrder(req, res, next){
+        const session = await Product.startSession();
+        session.startTransaction();
+
         try{
             let receivedOrder = req.body
             
+
+            let invalidations = []
+
             if(!receivedOrder.products || receivedOrder.products.length <= 0){
-                res.sendStatus(400);
+                res.status(400).json({message: "Invalid Products Array"});
+                await session.abortTransaction();
+                session.endSession();
+                return;
+            }
+
+            let listOfInvalidValues = receivedOrder.products.filter(product => product.quantity <= 0)
+
+            if(listOfInvalidValues.length > 0){
+                res.status(400).json({message: "Invalid Products Quantity", items: listOfInvalidValues});
+                await session.abortTransaction();
+                session.endSession();
                 return;
             }
 
             let productsNameArray = receivedOrder.products.map(product => product.name);
             let requestedProducts = await ProductService.getProductsByNames(productsNameArray);
 
-            //this could be improved to return the list of missing products
             let listOfMissingProducts = Order.missingProducts(requestedProducts, productsNameArray)
 
             if(listOfMissingProducts.length > 0){
-                res.sendStatus(400);
-                return;
+                invalidations.push({message: "Missing Products", items: listOfMissingProducts});
             }
 
-            //this could be improved to return the mising stock
             let outOfStockItems = Order.evaluateStock(requestedProducts, receivedOrder);
 
             if(outOfStockItems.length > 0){
-                res.sendStatus(400);
+                invalidations.push({message: "Out of stock", items: outOfStockItems});
+            }
+
+            if(invalidations.length > 0){
+                res.status(400).json(invalidations);
+                await session.abortTransaction();
+                session.endSession();
                 return;
             }
             
@@ -76,11 +96,23 @@ module.exports = class Order {
                 total,
                 products: productsWithPrice
             }
+            
+            const productsInverseQuantity = receivedOrder.products.map(product => {
+                product.quantity *= -1
+                return product;
+            } )
 
-            const product = await OrderService.createOrder(newOrder)
+            const product = await OrderService.createOrder(newOrder);
+            await ProductService.updateMultipleProducts(productsInverseQuantity);
+
+            await session.commitTransaction();
+            session.endSession();
             
             res.json(product);
+
         }catch(err){
+            await session.abortTransaction();
+            session.endSession();
             logger.error(err)
             res.status(500).json({error: err});
         }
@@ -104,8 +136,12 @@ module.exports = class Order {
             let requestedProduct =  receivedOrder.products.find(receivedProduct => product.name == receivedProduct.name);
             
             total += requestedProduct.quantity * product.price;
-            requestedProduct.price = product.price;
-            productsWithPrice.push(requestedProduct);
+
+            productsWithPrice.push({
+                name: requestedProduct.name,
+                price: product.price,
+                quantity: requestedProduct.quantity
+            });
         }
 
         total = parseFloat(total.toFixed(2));

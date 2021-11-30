@@ -19,13 +19,13 @@ beforeAll(async () => {
     await ConnectToMongodb();
     const abacaxi = {
         name: "Abacaxi",
-        quantity: 1,
+        quantity: 5,
         price: 10.58
     }
 
     const melancia = {
         name: "Melancia",
-        quantity: 1,
+        quantity: 5,
         price: 7.34
     }
 
@@ -70,6 +70,34 @@ describe('OrderController CreateOrder Tests', () => {
         )
     })
 
+    it('Should remove quantity from products', async () => {
+
+        const req = getMockReq({ body: {
+            "products": [
+                {
+                    name: "Abacaxi",
+                    quantity: 1
+                },
+                {
+                    name: "Melancia",
+                    quantity: 1
+                }
+            ]
+        }})
+
+        const initialStoredValue = await ProductService.getProductsByNames(["Melancia","Abacaxi"]);
+        
+        await OrderCtrl.apiCreateOrder(req, res, next);
+
+        const productsStored = await ProductService.getProductsByNames(["Melancia","Abacaxi"]);
+
+       for (let index = 0; index < productsStored.length; index++) {
+           const currentValue = productsStored[index].quantity;
+           const oldValue = initialStoredValue[index].quantity;
+           expect(currentValue).toBe(oldValue - 1);
+       }
+    })
+
     it('Should return 400 when products quantity arent enough', async () => {
 
         const req = getMockReq({ body: {
@@ -85,7 +113,7 @@ describe('OrderController CreateOrder Tests', () => {
             ]
         }})
         jest.clearAllMocks();
-        const spy = jest.spyOn(res, 'sendStatus');
+        const spy = jest.spyOn(res, 'status');
 
         await OrderCtrl.apiCreateOrder(req, res, next);
         expect(spy).toHaveBeenCalledWith(400);
@@ -105,7 +133,7 @@ describe('OrderController CreateOrder Tests', () => {
             ]
         }})
         jest.clearAllMocks();
-        const spy = jest.spyOn(res, 'sendStatus');
+        const spy = jest.spyOn(res, 'status');
         await OrderCtrl.apiCreateOrder(req, res, next);
         expect(spy).toHaveBeenCalledWith(400);
     })
@@ -117,7 +145,7 @@ describe('OrderController CreateOrder Tests', () => {
             ]
         }})
         jest.clearAllMocks();
-        const spy = jest.spyOn(res, 'sendStatus');
+        const spy = jest.spyOn(res, 'status');
         await OrderCtrl.apiCreateOrder(req, res, next);
         expect(spy).toHaveBeenCalledWith(400);
     })
@@ -125,35 +153,29 @@ describe('OrderController CreateOrder Tests', () => {
     it('Should return 400 when no products list is passed', async () => {
         const req = getMockReq({ body: {  }})
         jest.clearAllMocks();
-        const spy = jest.spyOn(res, 'sendStatus');
+        const spy = jest.spyOn(res, 'status');
         await OrderCtrl.apiCreateOrder(req, res, next);
         expect(spy).toHaveBeenCalledWith(400);
     })
 
-    it('Should return error when database is offline', async () => {
-
-        jest.clearAllMocks();
-        mongoose.disconnect();
+    it('Should return 400 when products with 0 or lower quantity is passed', async () => {
         const req = getMockReq({ body: {
             "products": [
                 {
                     name: "Abacaxi",
-                    quantity: 1
+                    quantity: 0
                 },
                 {
-                    name: "Melancia",
-                    quantity: 1
+                    name: "Magno",
+                    quantity: -1
                 }
             ]
         }})
-        
+        jest.clearAllMocks();
         const spy = jest.spyOn(res, 'status');
         await OrderCtrl.apiCreateOrder(req, res, next);
-        expect(spy).toHaveBeenCalledWith(500);
-        
-        await ConnectToMongodb();
+        expect(spy).toHaveBeenCalledWith(400);
     })
-
 })
 
 describe('OrderController GetAllOrders Test', () => {
@@ -217,14 +239,14 @@ describe('OrderController GetOrderById Test', () => {
 
     it('Should return 404 when orderID not found', async () => {
         const req = getMockReq({params: {id: "61a5bf6b82327e08f5aaa767"}});
-        const spy = jest.spyOn(res, 'sendStatus');
+        const spy = jest.spyOn(res, 'status');
         await OrderCtrl.apiGetOrderById(req, res, next);
         expect(spy).toHaveBeenCalledWith(404);
     })
 
     it('Should return 404 when id is null', async () => {
         const req = getMockReq();
-        const spy = jest.spyOn(res, 'sendStatus');
+        const spy = jest.spyOn(res, 'status');
         await OrderCtrl.apiGetOrderById(req, res, next);
         expect(spy).toHaveBeenCalledWith(404);
     })

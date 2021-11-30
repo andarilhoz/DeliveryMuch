@@ -56,7 +56,7 @@ describe('ProductController GetByName Tests', () => {
     it('Should return 404 when product is missing', async () => {
         const req = getMockReq({ params: {name: 'Melancia'}})
         jest.clearAllMocks();
-        const spy = jest.spyOn(res, 'sendStatus');
+        const spy = jest.spyOn(res, 'status');
 
         await ProductCtrl.apiGetProductByName(req, res, next);
 
